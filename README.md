@@ -11,4 +11,4 @@ then run:
 `rails server`
 
 ## Setting up the application
-# The application runs on a pre-cached model of reflector geometries. You'll need to first navigate to the Splitter window, and trigger the "batch anneal" operation. Opening the Web Inspector will provide information about the routine.  It takes about 5 minutes to compute. Once computed, the full fabrication pipeline is enabled. 
+The application runs on a pre-cached model of reflector geometries. You'll need to first navigate to the Splitter window, and trigger the "batch anneal" operation. Opening the Web Inspector will provide information about the routine.  It takes about 5 minutes to compute. Once computed, the full fabrication pipeline is enabled. 
