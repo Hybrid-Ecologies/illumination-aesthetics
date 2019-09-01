@@ -205,27 +205,34 @@ function LEDPlacerBrush(paper){
 
 			diffs = _.filter(diffs, function(diff){ return diff.contains(drag.position);});
 			
+			var max_length = Ruler.mm2pts(MAX_APA102C_RAY_LENGTH)
+						
+
 			// UPDATE RAYS
 			var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: drag.id});		
 				_.each(rays, function(r){
-				r.position = r.position.add(event.delta);
-				if(diffs.length == 0) r.opacity = 0;
-				else{
-					r.opacity = 0.3;
-					var dir = new paper.Point(1, 0);
-					dir.length = Ruler.mm2pts(MAX_APA102C_RAY_LENGTH);
-					dir.angle = r.originAngle;
-					dir = dir.add(drag.position);
-					r.lastSegment.point = dir;
-	
-					ixts = CanvasUtil.getIntersections(r, diffs);
-					
-					if(ixts.length > 0){
-						var closestIxT = _.min(ixts, function(ixt){ return ixt.point.getDistance(r.position); })
-						r.lastSegment.point = closestIxT.point.clone();
+					r.position = r.position.add(event.delta);
+					if(diffs.length == 0) r.opacity = 0;
+					else{
+						r.opacity = 0.3;
+						var dir = new paper.Point(1, 0);
+						dir.length = max_length;
+						dir.angle = r.originAngle;
+						dir = dir.add(drag.position);
+						r.lastSegment.point = dir;
+		
+						ixts = CanvasUtil.getIntersections(r, diffs);
+						if(ixts.length > 0){
+							var closestIxT = _.min(ixts, function(ixt){ return ixt.point.getDistance(r.position); })
+							if (closestIxT.point.getDistance(r.position) < max_length){
+								r.lastSegment.point = closestIxT.point.clone();
+							}
+						}
+						else{
+							r.opacity = 0.3;
+						}
 					}
-				}
-			})
+				})
 			// END UPDATE RAYS
 		})
 	
@@ -280,6 +287,8 @@ LEDPlacerBrush.prototype = {
 	}, 
 	addRays: function(diffs, led){
 		var scope = this;
+		var max_length = Ruler.mm2pts(MAX_APA102C_RAY_LENGTH)
+			
 		var target  = _.filter(diffs, function(diff){ return diff.contains(led.position);});
 		target = _.min(target, function(t){ return t.position.getDistance(led.position)});
 		led.target = target.id;
@@ -295,7 +304,7 @@ LEDPlacerBrush.prototype = {
 			CanvasUtil.set(rays, "strokeColor", led.fillColor);
 		} else{
 			// CREATE RAYS
-			var rays = _.range(-180, 180, 5);
+			var rays = _.range(-180, 180, 1);
 			
 			
 			led_color = new paper.Color(cp.getCurrentColor());
@@ -333,7 +342,9 @@ LEDPlacerBrush.prototype = {
 
 				if(ixts.length > 0){
 					var closestIxT = _.min(ixts, function(ixt){ return ixt.point.getDistance(line.position); })
-					line.lastSegment.point = closestIxT.point.clone();
+					if (closestIxT.point.getDistance(line.position) < max_length){
+						line.lastSegment.point = closestIxT.point.clone();
+					}
 				}
 				return line;
 			});
